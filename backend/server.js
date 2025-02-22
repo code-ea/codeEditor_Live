@@ -1,6 +1,11 @@
 import { WebSocketServer } from "ws";
+import http from "http";
+//const wss = new WebSocketServer({ port: 5000 });
+import express from "express";
+const app = express();
+const server = http.createServer(app);
 
-const wss = new WebSocketServer({ port: 5000 });
+const wss = new WebSocketServer({ server });
 
 const rooms = new Map();
 
@@ -104,4 +109,6 @@ const broadcast = (roomId, message, excludeWs = null) => {
   });
 };
 
-//console.log("WebSocket server is running on ws://localhost:5000");
+server.listen(5000, () => {
+    console.log("Server is running on http://localhost:5000");
+  });

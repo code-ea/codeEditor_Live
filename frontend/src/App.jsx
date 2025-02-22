@@ -4,7 +4,7 @@ import Editor from "@monaco-editor/react";
 import "./index.css"; // Ensure your custom styles are still included
 
 const apiKey = import.meta.env.VITE_API_KEY;
-const WS_SERVER = "ws://localhost:5000";
+const WS_SERVER = "http://localhost:5000";
 let ws;
 const languageMapping = {
   javascript: 63,
@@ -177,7 +177,6 @@ const App = () => {
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="bg-white p-8 rounded-xl shadow-lg w-96">
           <h1 className="text-2xl font-bold text-center mb-6">Enter Code</h1>
-          <h2>{import.meta.env.VITE_API_KEY}</h2>
           <input
             type="text"
             placeholder="Room Id"
