@@ -4,7 +4,7 @@ import Editor from "@monaco-editor/react";
 import "./index.css"; // Ensure your custom styles are still included
 
 const apiKey = import.meta.env.VITE_API_KEY;
-const WS_SERVER = "http://localhost:5000";
+const WS_SERVER = "https://codeeditor-live.onrender.com/";
 let ws;
 const languageMapping = {
   javascript: 63,
