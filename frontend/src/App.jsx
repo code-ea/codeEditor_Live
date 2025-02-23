@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Editor from "@monaco-editor/react";
 import "./index.css"; // Ensure your custom styles are still included
+import { toast, Toaster } from 'sonner';
+import "./Loader.css"
 
 const apiKey = import.meta.env.VITE_API_KEY;
 const WS_SERVER = "https://codeeditor-live.onrender.com/";
@@ -19,10 +21,9 @@ const App = () => {
   const [roomId, setRoomId] = useState("");
   const [userName, setUserName] = useState("");
   const [language, setLanguage] = useState("javascript");
-  const [code, setCode] = useState("// start code here");
+  const [code, setCode] = useState("");
   const [copySuccess, setCopySuccess] = useState("");
   const [users, setUsers] = useState([]);
-  const [typing, setTyping] = useState("");
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -70,7 +71,7 @@ const App = () => {
 
       return () => {
         ws.close();
-      };
+      };  
     }
   }, [joined]);
 
@@ -89,9 +90,23 @@ const App = () => {
   }, []);
 
   const joinRoom = () => {
-    if (roomId && userName) {
+    setLoading(true);
+    if(roomId == ""){
+      toast.error("Room ID cannot be empty");
+    }
+    else if(!/^[0-9]+$/.test(roomId)){
+      toast.error("Room ID must contains numerals only");
+    }
+    else if(userName == ""){
+      toast.error("Username cannot be empty");
+    }
+    else if(!/^[A-Za-z]+$/.test(userName)){
+      toast.error("Username must contains alphabet only");
+    }
+    else if (roomId && userName) {
       setJoined(true);
     }
+    setLoading(false);
   };
 
   const leaveRoom = () => {
@@ -135,11 +150,19 @@ const App = () => {
     };
 
     try {
+      if(code == ""){
+        toast.error("Source code cannot be empty");
+        return;
+      }
       const response = await axios.request(options);
       if (ws) {
         ws.send(JSON.stringify({ type: "outputChange", roomId, output: response.data.stdout }));
       }
-      setOutput(response.data.stdout || response.data.stderr || "No output");
+      if(response.data.stdout == null){
+        toast.error("Check syntax / Language selected")
+        setOutput("Check syntax / Language selected")
+      }
+      else setOutput(response.data.stdout || response.data.stderr || "No output");
     } catch (error) {
       console.error(error);
       setOutput("Error executing code. Check your API key and network connection.");
@@ -152,7 +175,7 @@ const App = () => {
     setCode(newCode);
     if (ws) {
       ws.send(JSON.stringify({ type: "codeChange", roomId, code: newCode }));
-      ws.send(JSON.stringify({ type: "typing", roomId, userName }));
+      //ws.send(JSON.stringify({ type: "typing", roomId, userName }));
     }
   };
 
@@ -175,6 +198,7 @@ const App = () => {
   if (!joined) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
+        <Toaster />
         <div className="bg-white p-8 rounded-xl shadow-lg w-96">
           <h1 className="text-2xl font-bold text-center mb-6">Enter Code</h1>
           <input
@@ -191,6 +215,17 @@ const App = () => {
             onChange={(e) => setUserName(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-md mb-4"
           />
+
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/30 backdrop-blur-sm">
+              <div className="loader">
+                <div className="inner one"></div>
+                <div className="inner two"></div>
+                <div className="inner three"></div>
+              </div>
+            </div>
+          )}
+
           <button
             onClick={joinRoom}
             className="w-full p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -204,6 +239,7 @@ const App = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
+    <Toaster />
       <div className="w-1/4 bg-white p-4 shadow-lg">
         <div className="mb-6 text-center">
           <h2 className="text-xl font-semibold">Code Room: {roomId}</h2>
@@ -270,7 +306,15 @@ const App = () => {
           disabled={loading}
           className="w-full mt-4 p-2 bg-green-600 text-white rounded-md hover:bg-green-700"
         >
-          {loading ? "Running..." : "Run Code"}
+          {loading ? 
+            <div className="absolute inset-0 flex items-center justify-center bg-white/30 backdrop-blur-sm">
+              <div className="loader">
+                <div className="inner one"></div>
+                <div className="inner two"></div>
+                <div className="inner three"></div>
+              </div>
+            </div>
+              : "Run Code"}
         </button>
 
         <div className="mt-6 bg-gray-800 p-4 text-white rounded-md">
