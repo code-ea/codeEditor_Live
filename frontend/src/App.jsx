@@ -100,7 +100,7 @@ const App = () => {
     else if(userName == ""){
       toast.error("Username cannot be empty");
     }
-    else if(!/^[A-Za-z]+$/.test(userName)){
+    else if(!/^[A-Za-z\s]+$/.test(userName)){
       toast.error("Username must contains alphabet only");
     }
     else if (roomId && userName) {
@@ -110,6 +110,7 @@ const App = () => {
   };
 
   const leaveRoom = () => {
+    setLoading(true);
     if (ws) {
       ws.send(JSON.stringify({ type: "leaveRoom", roomId }));
       ws.close();
@@ -120,6 +121,7 @@ const App = () => {
     setCode("// start code here");
     setLanguage("javascript");
     setInput("");
+    setLoading(false);
   };
 
   const copyRoomId = () => {
